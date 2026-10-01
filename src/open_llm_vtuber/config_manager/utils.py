@@ -68,9 +68,8 @@ def validate_config(config_data: dict) -> Config:
     try:
         return Config(**config_data)
     except ValidationError as e:
-        logger.critical(f"Error validating configuration: {e}")
-        logger.error("Configuration data:")
-        logger.error(config_data)
+        # Validation inputs can contain API keys. Never log the input object.
+        logger.critical("Configuration validation failed: {} invalid fields", e.error_count())
         raise e
 
 

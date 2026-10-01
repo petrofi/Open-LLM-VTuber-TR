@@ -3,6 +3,7 @@ This class is responsible for handling asynchronous interaction with OpenAI API 
 endpoints for language generation.
 """
 
+import os
 from typing import AsyncIterator, List, Dict, Any
 from openai import (
     AsyncStream,
@@ -111,6 +112,9 @@ class AsyncLLM(StatelessLLMInterface):
             )
 
             async for chunk in stream:
+                # Some compatible endpoints emit usage-only chunks.
+                if not chunk.choices:
+                    continue
                 if self.support_tools:
                     has_tool_calls = (
                         hasattr(chunk.choices[0].delta, "tool_calls")
@@ -201,13 +205,13 @@ class AsyncLLM(StatelessLLMInterface):
             logger.error(
                 f"Error calling the chat endpoint: Connection error. Failed to connect to the LLM API. \nCheck the configurations and the reachability of the LLM backend. \nSee the logs for details. \nTroubleshooting with documentation: https://open-llm-vtuber.github.io/docs/faq#%E9%81%87%E5%88%B0-error-calling-the-chat-endpoint-%E9%94%99%E8%AF%AF%E6%80%8E%E4%B9%88%E5%8A%9E \n{e.__cause__}"
             )
-            yield "Error calling the chat endpoint: Connection error. Failed to connect to the LLM API. Check the configurations and the reachability of the LLM backend. See the logs for details. Troubleshooting with documentation: [https://open-llm-vtuber.github.io/docs/faq#%E9%81%87%E5%88%B0-error-calling-the-chat-endpoint-%E9%94%99%E8%AF%AF%E6%80%8E%E4%B9%88%E5%8A%9E]"
+            yield ('Yapay zekâ motoruna bağlanılamadı. Yapay Zekâ Motoru ekranından sağlayıcıyı ve model adını kontrol edin.' if os.environ.get("OPEN_LLM_VTUBER_DESKTOP") == "1" else "Error calling the chat endpoint: Connection error. Failed to connect to the LLM API. Check the configurations and the reachability of the LLM backend. See the logs for details. Troubleshooting with documentation: [https://open-llm-vtuber.github.io/docs/faq#%E9%81%87%E5%88%B0-error-calling-the-chat-endpoint-%E9%94%99%E8%AF%AF%E6%80%8E%E4%B9%88%E5%8A%9E]")
 
         except RateLimitError as e:
             logger.error(
                 f"Error calling the chat endpoint: Rate limit exceeded: {e.response}"
             )
-            yield "Error calling the chat endpoint: Rate limit exceeded. Please try again later. See the logs for details."
+            yield ('Sağlayıcının kullanım sınırına ulaşıldı. Biraz sonra yeniden deneyin.' if os.environ.get("OPEN_LLM_VTUBER_DESKTOP") == "1" else "Error calling the chat endpoint: Rate limit exceeded. Please try again later. See the logs for details.")
 
         except APIError as e:
             if "does not support tools" in str(e):
@@ -222,7 +226,7 @@ class AsyncLLM(StatelessLLMInterface):
             logger.info(f"Model: {self.model}")
             logger.info(f"Messages: {messages}")
             logger.info(f"temperature: {self.temperature}")
-            yield "Error calling the chat endpoint: Error occurred while generating response. See the logs for details."
+            yield ('Yanıt oluşturulamadı. Sağlayıcı ayarlarını kontrol edin; ayrıntılar uygulama loglarında bulunur.' if os.environ.get("OPEN_LLM_VTUBER_DESKTOP") == "1" else "Error calling the chat endpoint: Error occurred while generating response. See the logs for details.")
 
         finally:
             # make sure the stream is properly closed
