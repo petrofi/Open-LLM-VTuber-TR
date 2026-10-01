@@ -2,5 +2,12 @@
   "revision": "536b0662742c02347bc0e980a01041f333bce120",
   "repo": "Systran/faster-whisper-small",
   "approximateDownloadMB": 465,
-  "license": "mit"
+  "license": "mit",
+  "files": [
+    {"name":"README.md","size":1998,"sha256":"329373481008c7c38654aff8ecdcf0163c211557cc7ba8e2ef6f2f84b4f75ec8"},
+    {"name":"config.json","size":2370,"sha256":"b55496ac7940a7ae47d2c01eab40edfd8701feec1229d9cce3b40014383fb828"},
+    {"name":"model.bin","size":483546902,"sha256":"3e305921506d8872816023e4c273e75d2419fb89b24da97b4fe7bce14170d671"},
+    {"name":"tokenizer.json","size":2203239,"sha256":"fb7b63191e9bb045082c79fd742a3106a12c99513ab30df4a0d47fa6cb6fd0ab"},
+    {"name":"vocabulary.txt","size":459861,"sha256":"34ce3fe1c5041027b3f8d42912270993f986dbc4bb34cf27f951e34a1e453913"}
+  ]
 }

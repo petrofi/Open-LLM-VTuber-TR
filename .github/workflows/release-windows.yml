@@ -106,5 +106,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $version = (Get-Content UPSTREAM.json | ConvertFrom-Json).tr_version
-          gh release create $env:GITHUB_REF_NAME ".dist/Open-LLM-VTuber-TR-v$version-Setup.exe" .dist/SHA256SUMS.txt .dist/THIRD-PARTY-SOURCES.zip --verify-tag --title "Open-LLM-VTuber TR v$version" --notes-file .dist/release-notes.md --latest
+          gh release create $env:GITHUB_REF_NAME ".dist/Open-LLM-VTuber-TR-v$version-Setup.exe" .dist/SHA256SUMS.txt .dist/THIRD-PARTY-SOURCES.zip --repo $env:GITHUB_REPOSITORY --verify-tag --title "Open-LLM-VTuber TR v$version" --notes-file .dist/release-notes.md --latest
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

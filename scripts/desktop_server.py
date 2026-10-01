@@ -19,7 +19,6 @@ from loguru import logger
 
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "1.2.1-tr.1"
-ASR_REPO = "Systran/faster-whisper-small"
 
 
 def prepare_user_data(data_dir: Path):
@@ -115,15 +114,12 @@ def create_app(settings, token, data_dir):
             return download
         download.update(state="downloading", message="Türkçe konuşma modeli indiriliyor.")
         async def perform():
-            from huggingface_hub import snapshot_download
+            from src.open_llm_vtuber.asr.model_download import download_model
             download.update(state="downloading", message="Türkçe konuşma modeli indiriliyor.")
             try:
                 manifest = json.loads((ROOT / "packaging/asr-model.json").read_text("utf-8"))
-                await asyncio.to_thread(
-                    snapshot_download, ASR_REPO, revision=manifest["revision"],
-                    local_dir=str(data_dir / "models/whisper-small"),
-                    allow_patterns=["model.bin", "config.json", "tokenizer.json", "vocabulary.*", "README.md"],
-                )
+                await asyncio.to_thread(download_model, data_dir / "models/whisper-small", manifest,
+                    lambda percent: download.update(message=f"Türkçe konuşma modeli indiriliyor (%{percent})."))
                 # Readiness includes real model initialization, not only file existence.
                 await asyncio.to_thread(server.default_context_cache.asr_engine._load_model)
                 (data_dir / "models/whisper-small/.tr-ready").write_text(manifest["revision"], "utf-8")
@@ -195,6 +191,8 @@ def main():
     sys.path.insert(0, str(ROOT))
     os.environ["OPEN_LLM_VTUBER_DESKTOP"] = "1"
     os.environ["HF_HOME"] = str(data_dir / "models/huggingface")
+    os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
+    os.environ["HF_HUB_DISABLE_IMPLICIT_TOKEN"] = "1"
     os.environ["PYTHONUTF8"] = "1"
     # Secrets arrive through an anonymous pipe, never command arguments or log files.
     config = json.loads(sys.stdin.readline())
