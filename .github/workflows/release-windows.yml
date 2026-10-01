@@ -97,6 +97,7 @@ jobs:
         with:
           name: windows-release
           path: .dist/*
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
       - name: Publish public release
