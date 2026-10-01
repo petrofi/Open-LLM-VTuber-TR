@@ -2,3 +2,7 @@
 	path = frontend
 	url = https://github.com/Open-LLM-VTuber/Open-LLM-VTuber-Web
 	branch = build
+[submodule "desktop"]
+	path = desktop
+	url = https://github.com/petrofi/Open-LLM-VTuber-Web-TR.git
+	branch = codex/turkish-edition
