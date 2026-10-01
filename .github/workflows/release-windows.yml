@@ -1,0 +1,109 @@
+name: Windows release
+on:
+  push:
+    tags: ['v*-tr.*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      PYTHONUTF8: '1'
+      UV_PYTHON_INSTALL_DIR: ${{ github.workspace }}/.build/python
+      UV_PYTHON_PREFERENCE: only-managed
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.12.0'
+          enable-cache: false
+      - name: Validate release version
+        run: |
+          $version = (Get-Content UPSTREAM.json | ConvertFrom-Json).tr_version
+          $frontend = (Get-Content desktop/package.json | ConvertFrom-Json).version
+          if ($version -ne $frontend) { throw "Version mismatch" }
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") { throw "Tag mismatch" }
+      - name: Private backend environment
+        run: |
+          uv python install 3.10.20
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          uv venv --python 3.10.20 .venv
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          uv pip sync --python .venv/Scripts/python.exe --require-hashes packaging/requirements-runtime.txt
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Backend lint, unit and startup tests
+        run: |
+          uvx ruff@0.8.6 check .
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          .venv/Scripts/python.exe -m unittest discover -s tests -v
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          .venv/Scripts/python.exe scripts/verify_runtime.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Frontend quality and production build
+        working-directory: desktop
+        run: |
+          npm ci
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run lint
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run typecheck
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm test
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          npm run build
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Licenses, corresponding sources and runtime
+        run: |
+          .venv/Scripts/python.exe scripts/collect_media_sources.py
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          .venv/Scripts/python.exe scripts/stage_desktop.py --frontend desktop
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Push-Location desktop
+          node scripts/collect-licenses.cjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Pop-Location
+      - name: NSIS installer
+        working-directory: desktop
+        run: |
+          npx electron-builder --win --x64 --publish never
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Packaged Electron smoke test
+        working-directory: desktop
+        run: |
+          node scripts/qa-packaged.cjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+      - name: Checksums and release notes
+        run: .venv/Scripts/python.exe scripts/release_notes.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: windows-release
+          path: .dist/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish public release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content UPSTREAM.json | ConvertFrom-Json).tr_version
+          gh release create $env:GITHUB_REF_NAME ".dist/Open-LLM-VTuber-TR-v$version-Setup.exe" .dist/SHA256SUMS.txt .dist/THIRD-PARTY-SOURCES.zip --verify-tag --title "Open-LLM-VTuber TR v$version" --notes-file .dist/release-notes.md --latest
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
