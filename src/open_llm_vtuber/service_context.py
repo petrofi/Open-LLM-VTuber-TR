@@ -244,7 +244,7 @@ class ServiceContext:
             self.character_config.agent_config.agent_settings.basic_memory_agent.mcp_enabled_servers,
         )
 
-        logger.debug(f"Loaded service context with cache: {character_config}")
+        logger.debug("Loaded service context from cache")
 
     async def load_from_config(self, config: Config) -> None:
         """

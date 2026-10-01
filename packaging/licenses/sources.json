@@ -1,0 +1,13 @@
+{
+  "ctranslate2-LICENSE.txt": "https://raw.githubusercontent.com/OpenNMT/CTranslate2/v4.8.2/LICENSE",
+  "flatbuffers-LICENSE.txt": "https://raw.githubusercontent.com/google/flatbuffers/v25.12.19/LICENSE",
+  "loguru-LICENSE.txt": "https://raw.githubusercontent.com/Delgan/loguru/0.7.3/LICENSE",
+  "tokenizers-LICENSE.txt": "https://raw.githubusercontent.com/huggingface/tokenizers/v0.23.2/LICENSE",
+  "APACHE-2.0.txt": "https://www.apache.org/licenses/LICENSE-2.0.txt",
+  "VAD-LICENSE.txt": "https://raw.githubusercontent.com/ricky0123/vad/master/LICENSE",
+  "SILERO-VAD-LICENSE.txt": "https://raw.githubusercontent.com/snakers4/silero-vad/master/LICENSE",
+  "ONNXRUNTIME-LICENSE.txt": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/LICENSE",
+  "ONNXRUNTIME-NOTICES.txt": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.30.0/ThirdPartyNotices.txt",
+  "GPL-3.0.txt": "https://www.gnu.org/licenses/gpl-3.0.txt",
+  "LGPL-3.0.txt": "https://www.gnu.org/licenses/lgpl-3.0.txt"
+}

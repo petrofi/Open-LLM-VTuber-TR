@@ -1,4 +1,5 @@
 import base64
+import io
 from pydub import AudioSegment
 from pydub.utils import make_chunks
 from ..agent.output_types import Actions
@@ -60,8 +61,25 @@ def prepare_audio_payload(
         }
 
     try:
-        audio = AudioSegment.from_file(audio_path)
-        audio_bytes = audio.export(format="wav").read()
+        # PyAV ships the decoder libraries used by Faster-Whisper. This avoids
+        # requiring a separate system-wide FFmpeg executable in the installer.
+        if str(audio_path).lower().endswith(".wav"):
+            with open(audio_path, "rb") as source:
+                audio = AudioSegment.from_file(source, format="wav")
+        else:
+            import av
+
+            pcm = io.BytesIO()
+            resampler = av.AudioResampler(format="s16", layout="mono", rate=24000)
+            with av.open(audio_path) as container:
+                for frame in container.decode(audio=0):
+                    for converted in resampler.resample(frame):
+                        pcm.write(converted.to_ndarray().tobytes())
+                for converted in resampler.resample(None):
+                    pcm.write(converted.to_ndarray().tobytes())
+            audio = AudioSegment(pcm.getvalue(), sample_width=2, frame_rate=24000, channels=1)
+        with audio.export(format="wav") as exported:
+            audio_bytes = exported.read()
     except Exception as e:
         raise ValueError(
             f"Error loading or converting generated audio file to wav file '{audio_path}': {e}"

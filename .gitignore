@@ -76,3 +76,12 @@ private/
 mcp_servers.json
 
 .vscode/
+.build/
+.dist/
+.venv*/
+*.log
+.env.*
+*.pem
+*.key
+*.pfx
+verification/private/

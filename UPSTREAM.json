@@ -1,0 +1,11 @@
+{
+  "upstream_repository": "Open-LLM-VTuber/Open-LLM-VTuber",
+  "upstream_tag": "v1.2.1",
+  "upstream_commit": "3afa41014b4548a0842e9ee2f576f4b164b48886",
+  "frontend_submodule_commit": "06a659b114fff788cf0daaa86e484576db4975bf",
+  "frontend_source_tag": "v1.2.1",
+  "frontend_source_commit": "7a2e214c3f266c294541127520dab7fce46787e7",
+  "fork_date": "2026-09-25",
+  "tr_version": "1.2.1-tr.1",
+  "publication_status": "user-confirmed-tr-publication-permission"
+}
