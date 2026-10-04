@@ -91,6 +91,8 @@ jobs:
         run: |
           node scripts/qa-packaged.cjs
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node scripts/qa-close.cjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Checksums and release notes
         run: .venv/Scripts/python.exe scripts/release_notes.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
