@@ -91,12 +91,15 @@ jobs:
         run: |
           node scripts/qa-packaged.cjs
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          node scripts/qa-close.cjs
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Checksums and release notes
         run: .venv/Scripts/python.exe scripts/release_notes.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: windows-release
           path: .dist/*
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 14
       - name: Publish public release
@@ -105,5 +108,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $version = (Get-Content UPSTREAM.json | ConvertFrom-Json).tr_version
-          gh release create $env:GITHUB_REF_NAME ".dist/Open-LLM-VTuber-TR-v$version-Setup.exe" .dist/SHA256SUMS.txt .dist/THIRD-PARTY-SOURCES.zip --verify-tag --title "Open-LLM-VTuber TR v$version" --notes-file .dist/release-notes.md --latest
+          gh release create $env:GITHUB_REF_NAME ".dist/Open-LLM-VTuber-TR-v$version-Setup.exe" .dist/SHA256SUMS.txt .dist/THIRD-PARTY-SOURCES.zip --repo $env:GITHUB_REPOSITORY --verify-tag --title "Open-LLM-VTuber TR v$version" --notes-file .dist/release-notes.md --latest
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

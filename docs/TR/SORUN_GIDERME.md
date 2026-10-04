@@ -6,6 +6,8 @@
 
 **Türkçe konuşma modeli henüz indirilmemiş:** Konuşma Tanıma ekranından indirmeyi başlatın. Yazılı sohbet için ASR modeli zorunlu değildir.
 
+**Model indirmesi yarıda kaldı:** İnternet bağlantınızı kontrol edip aynı düğmeyle yeniden deneyin. İndirme yüzdesi ekranda görünür; tamamlanan dosyalar SHA-256 ile doğrulanır ve tekrar indirilmez. Eksik veya bozuk dosya kullanıma alınmaz.
+
 **Mikrofon erişimi bulunamadı:** Windows izinlerini ve aygıtı kullanıcı olarak kontrol edin; uygulama izinleri değiştirmez.
 
 **Ses oluşmuyor:** Edge TTS çevrimiçidir. İnternet bağlantısını, Windows çıkış aygıtını ve ses karıştırıcısını kontrol edin.

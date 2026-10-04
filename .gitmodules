@@ -5,4 +5,4 @@
 [submodule "desktop"]
 	path = desktop
 	url = https://github.com/petrofi/Open-LLM-VTuber-Web-TR.git
-	branch = codex/turkish-edition
+	branch = main
